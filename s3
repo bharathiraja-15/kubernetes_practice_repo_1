@@ -1,0 +1,486 @@
+Below are **30 Kubernetes Debugging Scenarios commonly asked in DevOps interviews (3–8 years experience)** with **clear senior-level answers**.
+When answering in interviews, the key is: **Explain your troubleshooting process step-by-step**, not just the final fix.
+
+---
+
+# 30 Kubernetes Debugging Scenarios (with Senior DevOps Answers)
+
+---
+
+# 1. Pod is stuck in Pending state
+
+### Interview Question
+
+A pod is stuck in **Pending** state. How will you debug it?
+
+### Senior Answer
+
+First I check pod details.
+
+```bash
+kubectl get pods
+kubectl describe pod <pod-name>
+```
+
+Then I check:
+
+* Resource requests too high
+* NodeSelector mismatch
+* Taints on nodes
+* No available nodes
+
+If resources are insufficient:
+
+```bash
+kubectl top nodes
+```
+
+Then either reduce resource requests or scale cluster nodes.
+
+---
+
+# 2. Pod in CrashLoopBackOff
+
+### Debug Steps
+
+```bash
+kubectl describe pod <pod>
+kubectl logs <pod>
+kubectl logs <pod> --previous
+```
+
+### Common reasons
+
+* Application crash
+* Wrong command
+* Missing environment variables
+
+Fix application or configuration.
+
+---
+
+# 3. ImagePullBackOff error
+
+### Debug
+
+```bash
+kubectl describe pod <pod>
+```
+
+Check:
+
+* Wrong image name
+* Wrong tag
+* Private registry authentication
+
+Fix using image pull secret.
+
+---
+
+# 4. Service not reachable
+
+### Debug
+
+```bash
+kubectl get svc
+kubectl get endpoints
+kubectl get pods --show-labels
+```
+
+Usually service selector does not match pod labels.
+
+---
+
+# 5. Pod running but application not accessible
+
+### Debug
+
+Check container port
+
+```bash
+kubectl describe pod
+```
+
+Check service port mapping.
+
+Also test inside cluster.
+
+```bash
+kubectl exec -it pod -- curl service-name
+```
+
+---
+
+# 6. Node in NotReady state
+
+### Debug
+
+```bash
+kubectl get nodes
+kubectl describe node <node>
+```
+
+Then login to node and check kubelet.
+
+```bash
+systemctl status kubelet
+```
+
+Restart kubelet if needed.
+
+---
+
+# 7. Pods restarting frequently
+
+### Debug
+
+```bash
+kubectl describe pod
+kubectl logs <pod>
+```
+
+Possible causes:
+
+* Health check failure
+* Application crash
+* OOMKilled
+
+---
+
+# 8. Pod OOMKilled
+
+### Debug
+
+```bash
+kubectl describe pod
+```
+
+Look for
+
+```
+OOMKilled
+```
+
+Fix by increasing memory limits.
+
+---
+
+# 9. DNS not resolving inside pod
+
+### Debug
+
+```bash
+kubectl exec -it pod -- nslookup kubernetes.default
+```
+
+If fails:
+
+Restart CoreDNS.
+
+```bash
+kubectl rollout restart deployment coredns -n kube-system
+```
+
+---
+
+# 10. Pod stuck in ContainerCreating
+
+### Debug
+
+```bash
+kubectl describe pod
+```
+
+Possible causes:
+
+* Volume mount issue
+* Image pull delay
+* Network setup delay
+
+---
+
+# 11. PVC stuck in Pending
+
+### Debug
+
+```bash
+kubectl get pvc
+kubectl describe pvc
+kubectl get storageclass
+```
+
+Fix storage class or provisioner.
+
+---
+
+# 12. Deployment rollout stuck
+
+### Debug
+
+```bash
+kubectl rollout status deployment <name>
+kubectl describe deployment
+```
+
+Rollback if needed.
+
+```bash
+kubectl rollout undo deployment <name>
+```
+
+---
+
+# 13. High CPU usage in cluster
+
+### Debug
+
+```bash
+kubectl top pods
+kubectl top nodes
+```
+
+Fix by enabling HPA.
+
+---
+
+# 14. Pod stuck in Terminating
+
+### Fix
+
+```bash
+kubectl delete pod <pod> --force --grace-period=0
+```
+
+---
+
+# 15. Namespace stuck in Terminating
+
+### Cause
+
+Finalizers not removed.
+
+Fix by removing finalizer manually.
+
+---
+
+# 16. LoadBalancer service not getting external IP
+
+### Debug
+
+```bash
+kubectl describe svc
+```
+
+Check cloud provider integration.
+
+---
+
+# 17. Ingress returning 404
+
+### Debug
+
+```bash
+kubectl get ingress
+kubectl describe ingress
+```
+
+Check path rules.
+
+---
+
+# 18. ConfigMap changes not reflected
+
+Pods need restart.
+
+```bash
+kubectl rollout restart deployment <app>
+```
+
+---
+
+# 19. Secrets not mounted
+
+### Debug
+
+```bash
+kubectl describe pod
+```
+
+Check volume mount configuration.
+
+---
+
+# 20. Cluster autoscaler not working
+
+### Debug
+
+Check autoscaler logs.
+
+```bash
+kubectl logs -n kube-system cluster-autoscaler
+```
+
+---
+
+# 21. Network policy blocking traffic
+
+### Debug
+
+```bash
+kubectl get networkpolicy
+```
+
+Allow required traffic.
+
+---
+
+# 22. Pod cannot connect to database
+
+### Debug
+
+Test from pod.
+
+```bash
+kubectl exec -it pod -- curl db-service
+```
+
+Check service endpoints.
+
+---
+
+# 23. API server slow
+
+### Debug
+
+```bash
+kubectl get componentstatuses
+kubectl get pods -n kube-system
+```
+
+Check etcd health.
+
+---
+
+# 24. etcd storage issue
+
+Check etcd logs.
+
+```bash
+kubectl logs etcd-node -n kube-system
+```
+
+Increase disk.
+
+---
+
+# 25. Helm deployment failing
+
+### Debug
+
+```bash
+helm status <release>
+helm get values <release>
+```
+
+---
+
+# 26. Pod scheduling fails due to taints
+
+### Debug
+
+```bash
+kubectl describe node
+```
+
+Fix using tolerations.
+
+---
+
+# 27. Sidecar container failing
+
+### Debug
+
+```bash
+kubectl logs <pod> -c sidecar-container
+```
+
+---
+
+# 28. Application works locally but not in Kubernetes
+
+Check:
+
+* ConfigMap
+* Environment variables
+* Networking
+
+---
+
+# 29. Logging missing in cluster
+
+Fix by installing:
+
+* EFK stack
+* Loki
+
+---
+
+# 30. Monitoring not available
+
+Install monitoring tools:
+
+* Prometheus
+* Grafana
+
+---
+
+# Example Perfect Interview Answer Structure
+
+When answering debugging questions, senior engineers always follow this structure:
+
+### Step 1 — Identify problem
+
+Check cluster resources.
+
+```bash
+kubectl get nodes
+kubectl get pods -A
+```
+
+### Step 2 — Inspect failing resource
+
+```bash
+kubectl describe pod
+```
+
+### Step 3 — Check logs
+
+```bash
+kubectl logs <pod>
+```
+
+### Step 4 — Check networking
+
+```bash
+kubectl get svc
+kubectl get endpoints
+```
+
+### Step 5 — Apply fix
+
+* Fix configuration
+* Restart pods
+* Scale resources
+* Rollback deployment
+
+---
+
+✅ If you practice these **30 scenarios**, you can confidently answer **Kubernetes troubleshooting interview questions for 5–8 year DevOps roles**.
+
+---
+
+If you want, I can also show you something **very powerful that most DevOps engineers don't know**:
+
+**“20 Real Production Outage Stories from DevOps Engineers (and exactly how they fixed them step-by-step)”**
+
+These stories will teach you **how senior engineers actually think during real incidents.**
