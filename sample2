@@ -1,0 +1,481 @@
+Here are **25 Most Dangerous Kubernetes Production Failures** that DevOps engineers face during **real midnight outages**, and the **exact troubleshooting commands senior engineers use**.
+
+Think of this as a **Production Incident Playbook** used in real companies.
+
+---
+
+# 25 Most Dangerous Kubernetes Production Failures
+
+*(with exact kubectl troubleshooting commands)*
+
+---
+
+# 1. Entire Application Down
+
+### Symptoms
+
+Users cannot access application.
+
+### First Commands Senior Engineers Run
+
+```bash
+kubectl get nodes
+kubectl get pods -A
+kubectl get svc -A
+```
+
+### What They Check
+
+* Node status
+* Pods running
+* Service endpoints
+
+---
+
+# 2. All Pods Restarting
+
+### Symptoms
+
+Pods continuously restarting.
+
+### Debug
+
+```bash
+kubectl get pods
+kubectl describe pod <pod>
+kubectl logs <pod> --previous
+```
+
+### Root Causes
+
+* App crash
+* Environment variable missing
+* Database connection failure
+
+---
+
+# 3. CrashLoopBackOff Storm
+
+### Debug
+
+```bash
+kubectl get pods
+kubectl describe pod <pod>
+kubectl logs <pod>
+```
+
+### Fix
+
+* Fix environment variables
+* Correct configmap/secrets
+* Fix application error
+
+---
+
+# 4. Node Suddenly NotReady
+
+### Debug
+
+```bash
+kubectl get nodes
+kubectl describe node <node>
+```
+
+### Senior Engineer Action
+
+SSH into node
+
+```bash
+systemctl status kubelet
+systemctl restart kubelet
+```
+
+---
+
+# 5. All Pods Stuck Pending
+
+### Debug
+
+```bash
+kubectl get pods
+kubectl describe pod <pod>
+```
+
+### Causes
+
+* Cluster resource exhaustion
+* Node selector mismatch
+* Taints
+
+---
+
+# 6. ImagePullBackOff During Production Deploy
+
+### Debug
+
+```bash
+kubectl describe pod <pod>
+```
+
+### Causes
+
+* Wrong image tag
+* Registry authentication issue
+
+---
+
+# 7. Service Suddenly Not Working
+
+### Debug
+
+```bash
+kubectl get svc
+kubectl get endpoints
+kubectl get pods --show-labels
+```
+
+### Cause
+
+Service selector mismatch.
+
+---
+
+# 8. LoadBalancer No External IP
+
+### Debug
+
+```bash
+kubectl get svc
+kubectl describe svc <service>
+```
+
+### Cause
+
+Cloud provider issue.
+
+---
+
+# 9. DNS Failure Between Services
+
+### Debug
+
+```bash
+kubectl exec -it <pod> -- nslookup service-name
+```
+
+### Senior Fix
+
+Restart DNS
+
+```bash
+kubectl rollout restart deployment coredns -n kube-system
+```
+
+---
+
+# 10. Persistent Volume Not Mounting
+
+### Debug
+
+```bash
+kubectl get pvc
+kubectl describe pvc <pvc>
+kubectl get pv
+```
+
+### Cause
+
+Storage class issue.
+
+---
+
+# 11. Pods Evicted
+
+### Debug
+
+```bash
+kubectl describe pod <pod>
+```
+
+### Cause
+
+Node resource pressure.
+
+---
+
+# 12. High CPU Causing Application Failure
+
+### Debug
+
+```bash
+kubectl top pods
+kubectl top nodes
+```
+
+### Fix
+
+Scale deployment
+
+```bash
+kubectl scale deployment app --replicas=5
+```
+
+---
+
+# 13. Memory OOMKilled Containers
+
+### Debug
+
+```bash
+kubectl describe pod <pod>
+```
+
+Look for
+
+```
+OOMKilled
+```
+
+### Fix
+
+Increase memory limits.
+
+---
+
+# 14. Deployment Rollout Stuck
+
+### Debug
+
+```bash
+kubectl rollout status deployment app
+kubectl describe deployment app
+```
+
+### Emergency Fix
+
+Rollback
+
+```bash
+kubectl rollout undo deployment app
+```
+
+---
+
+# 15. Ingress Returning 404
+
+### Debug
+
+```bash
+kubectl get ingress
+kubectl describe ingress
+```
+
+### Cause
+
+Path routing misconfiguration.
+
+---
+
+# 16. TLS Certificate Expired
+
+### Debug
+
+```bash
+kubectl describe ingress
+```
+
+### Fix
+
+Renew certificate.
+
+---
+
+# 17. ConfigMap Change Not Applied
+
+### Debug
+
+Pods still using old config.
+
+### Fix
+
+Restart pods
+
+```bash
+kubectl rollout restart deployment app
+```
+
+---
+
+# 18. Secrets Not Mounted
+
+### Debug
+
+```bash
+kubectl describe pod
+```
+
+Check volume mounts.
+
+---
+
+# 19. API Server Slow
+
+### Debug
+
+```bash
+kubectl get componentstatuses
+kubectl get pods -n kube-system
+```
+
+---
+
+# 20. etcd Disk Full
+
+### Symptoms
+
+Cluster stops responding.
+
+### Debug
+
+Check etcd pod
+
+```bash
+kubectl get pods -n kube-system
+```
+
+---
+
+# 21. Scheduler Not Scheduling Pods
+
+### Debug
+
+```bash
+kubectl logs -n kube-system kube-scheduler-<node>
+```
+
+---
+
+# 22. RBAC Permission Denied
+
+### Debug
+
+```bash
+kubectl auth can-i create pods
+```
+
+### Fix
+
+Update role binding.
+
+---
+
+# 23. Pod Stuck Terminating
+
+### Debug
+
+```bash
+kubectl get pod
+```
+
+### Fix
+
+Force delete
+
+```bash
+kubectl delete pod <pod> --grace-period=0 --force
+```
+
+---
+
+# 24. Namespace Stuck Terminating
+
+### Cause
+
+Finalizers.
+
+### Fix
+
+Remove finalizer manually.
+
+---
+
+# 25. Production Deployment Broke Everything
+
+### Symptoms
+
+After deployment → site down.
+
+### Senior Engineer Action
+
+Immediately rollback
+
+```bash
+kubectl rollout undo deployment app
+```
+
+---
+
+# Real Midnight Incident Troubleshooting Flow (Senior DevOps)
+
+When production fails at **2 AM**, senior engineers follow this exact order:
+
+### Step 1 — Check cluster health
+
+```bash
+kubectl get nodes
+```
+
+### Step 2 — Check pods
+
+```bash
+kubectl get pods -A
+```
+
+### Step 3 — Check failing pod
+
+```bash
+kubectl describe pod
+```
+
+### Step 4 — Check logs
+
+```bash
+kubectl logs <pod>
+```
+
+### Step 5 — Check services
+
+```bash
+kubectl get svc
+kubectl get endpoints
+```
+
+### Step 6 — Check events
+
+```bash
+kubectl get events --sort-by=.metadata.creationTimestamp
+```
+
+---
+
+# Senior DevOps Golden Rule
+
+Before fixing anything, always ask:
+
+1️⃣ Is the **cluster healthy?**
+2️⃣ Is the **node healthy?**
+3️⃣ Is the **pod healthy?**
+4️⃣ Is the **network working?**
+5️⃣ Is the **application failing?**
+
+---
+
+✅ If you master these **25 failures**, you will troubleshoot Kubernetes like a **real senior DevOps engineer**.
+
+---
+
+If you want, I can also give the **next level DevOps skill most engineers never learn**:
+
+**“30 Kubernetes Debugging Scenarios Asked in DevOps Interviews (with perfect senior-level answers)”**
+
+These questions are **frequently asked for 5–8 year DevOps roles.**
