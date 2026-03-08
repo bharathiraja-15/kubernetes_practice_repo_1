@@ -1,0 +1,615 @@
+
+
+Below are **40 REAL Kubernetes production problems** DevOps engineers face in companies — and **exactly how senior engineers troubleshoot and fix them**.
+This is written like **real incident response playbooks used in companies** (the type of knowledge expected from **5–8 year DevOps engineers**).
+
+Many Kubernetes failures happen due to **misconfiguration, resource shortages, networking issues, storage problems, or security misconfiguration** in clusters. ([The New Stack][1])
+
+---
+
+# 40 Real Production Problems DevOps Engineers Face in Kubernetes
+
+*(With Real Troubleshooting Commands & Fixes)*
+
+---
+
+# 1. Pod in CrashLoopBackOff
+
+### Problem
+
+Container starts → crashes → restarts repeatedly.
+
+### Root Causes
+
+* Application crash
+* Missing environment variable
+* Wrong command
+* Failed health check
+
+### Debug
+
+```bash
+kubectl get pods
+kubectl describe pod <pod>
+kubectl logs <pod>
+```
+
+### Fix
+
+* Correct config/env variables
+* Fix entrypoint
+* Increase resources
+* Fix application bug
+
+CrashLoopBackOff happens when Kubernetes repeatedly restarts failing containers. ([GitHub][2])
+
+---
+
+# 2. Pod stuck in Pending
+
+### Problem
+
+Pod never starts.
+
+### Debug
+
+```bash
+kubectl describe pod <pod>
+kubectl get nodes
+```
+
+### Common reasons
+
+* No resources
+* Node selector mismatch
+* Taints
+
+### Fix
+
+* Add nodes
+* Reduce resource request
+* Fix affinity
+
+---
+
+# 3. ImagePullBackOff
+
+### Problem
+
+Container image cannot be pulled.
+
+### Debug
+
+```bash
+kubectl describe pod <pod>
+```
+
+### Causes
+
+* Wrong image name
+* Private registry auth missing
+
+### Fix
+
+```bash
+kubectl create secret docker-registry regcred
+```
+
+---
+
+# 4. Service Not Reachable
+
+### Problem
+
+Application deployed but cannot access.
+
+### Debug
+
+```bash
+kubectl get svc
+kubectl get endpoints
+kubectl get pods --show-labels
+```
+
+### Root Cause
+
+Selector mismatch between Service and Pod labels.
+
+---
+
+# 5. Node Not Ready
+
+### Problem
+
+Node goes into **NotReady state**
+
+### Debug
+
+```bash
+kubectl get nodes
+kubectl describe node <node>
+```
+
+### Causes
+
+* kubelet stopped
+* disk pressure
+* memory pressure
+
+### Fix
+
+Restart kubelet
+
+```
+systemctl restart kubelet
+```
+
+---
+
+# 6. OOMKilled Containers
+
+### Problem
+
+Container killed due to memory.
+
+### Debug
+
+```
+kubectl describe pod
+```
+
+### Fix
+
+Increase limits
+
+```
+resources:
+  limits:
+    memory: "512Mi"
+```
+
+---
+
+# 7. High CPU usage
+
+### Debug
+
+```
+kubectl top pods
+kubectl top nodes
+```
+
+### Fix
+
+Enable HPA
+
+```
+kubectl autoscale deployment app --cpu-percent=70
+```
+
+---
+
+# 8. Pods Evicted
+
+### Cause
+
+Node resource pressure.
+
+### Fix
+
+* Increase nodes
+* Tune requests
+
+---
+
+# 9. Persistent Volume not mounting
+
+### Debug
+
+```
+kubectl get pvc
+kubectl get pv
+```
+
+### Fix
+
+Correct storage class.
+
+Storage misconfiguration often prevents apps from mounting volumes. ([Honeycomb][3])
+
+---
+
+# 10. PVC Pending
+
+### Cause
+
+Storage class missing.
+
+### Fix
+
+Create storage class.
+
+---
+
+# 11. DNS resolution failure
+
+### Debug
+
+```
+kubectl exec -it pod -- nslookup service
+```
+
+### Fix
+
+Restart CoreDNS
+
+---
+
+# 12. Network policy blocking traffic
+
+### Debug
+
+```
+kubectl get networkpolicy
+```
+
+### Fix
+
+Allow traffic rules.
+
+---
+
+# 13. LoadBalancer not getting external IP
+
+### Cause
+
+Cloud provider issue.
+
+### Fix
+
+Check cloud controller manager.
+
+---
+
+# 14. Deployment rollout stuck
+
+### Debug
+
+```
+kubectl rollout status deployment
+```
+
+### Fix
+
+Rollback
+
+```
+kubectl rollout undo deployment app
+```
+
+---
+
+# 15. ConfigMap not applied
+
+### Cause
+
+Pod restart required.
+
+### Fix
+
+Restart deployment
+
+```
+kubectl rollout restart deployment
+```
+
+---
+
+# 16. Secrets not mounting
+
+### Debug
+
+```
+kubectl describe pod
+```
+
+### Fix
+
+Correct secret name.
+
+---
+
+# 17. Ingress returning 404
+
+### Cause
+
+Incorrect path rule.
+
+### Fix
+
+Correct ingress yaml.
+
+---
+
+# 18. Certificate expired (Ingress TLS)
+
+### Fix
+
+Renew certificate.
+
+---
+
+# 19. API server slow
+
+### Debug
+
+```
+kubectl get componentstatuses
+```
+
+---
+
+# 20. ETCD disk full
+
+### Fix
+
+Increase disk.
+
+---
+
+# 21. Scheduler not scheduling pods
+
+### Debug
+
+```
+kubectl logs kube-scheduler
+```
+
+---
+
+# 22. Kubelet stopped
+
+### Fix
+
+```
+systemctl restart kubelet
+```
+
+---
+
+# 23. Cluster autoscaler not scaling
+
+### Fix
+
+Check cloud permissions.
+
+---
+
+# 24. Pods restarting randomly
+
+### Cause
+
+Health probe failure.
+
+---
+
+# 25. Liveness probe failure
+
+### Fix
+
+Adjust probe timeout.
+
+---
+
+# 26. Readiness probe failure
+
+### Fix
+
+Delay readiness check.
+
+---
+
+# 27. Container startup too slow
+
+### Fix
+
+Increase startup probe.
+
+---
+
+# 28. High latency between services
+
+### Debug
+
+```
+kubectl exec pod curl service
+```
+
+---
+
+# 29. Sidecar container failure
+
+### Fix
+
+Check container logs.
+
+---
+
+# 30. CI/CD deployment failure
+
+### Cause
+
+Invalid YAML.
+
+Even small YAML mistakes can break deployments. ([The New Stack][1])
+
+---
+
+# 31. RBAC permission denied
+
+### Debug
+
+```
+kubectl auth can-i create pods
+```
+
+### Fix
+
+Add RoleBinding.
+
+---
+
+# 32. Container security issue
+
+### Fix
+
+Use non-root containers.
+
+---
+
+# 33. Pod stuck Terminating
+
+### Fix
+
+```
+kubectl delete pod --force --grace-period=0
+```
+
+---
+
+# 34. Namespace deletion stuck
+
+### Fix
+
+Remove finalizers.
+
+---
+
+# 35. Helm deployment failure
+
+### Debug
+
+```
+helm status release
+```
+
+---
+
+# 36. Node disk pressure
+
+### Fix
+
+Clean docker images.
+
+---
+
+# 37. CoreDNS crash
+
+### Fix
+
+Restart CoreDNS pods.
+
+---
+
+# 38. Log storage full
+
+### Fix
+
+Rotate logs.
+
+---
+
+# 39. Monitoring missing
+
+### Fix
+
+Install
+
+* Prometheus
+* Grafana
+
+Observability tools are critical because Kubernetes does not provide built-in monitoring by default. ([Spacelift][4])
+
+---
+
+# 40. Production outage after deployment
+
+### Fix
+
+Immediate rollback
+
+```
+kubectl rollout undo deployment
+```
+
+---
+
+# How Senior DevOps Engineers Troubleshoot (Golden Process)
+
+Whenever production breaks, they follow this order:
+
+### Step 1 — Check cluster
+
+```
+kubectl get nodes
+```
+
+### Step 2 — Check pods
+
+```
+kubectl get pods -A
+```
+
+### Step 3 — Describe resource
+
+```
+kubectl describe pod
+```
+
+### Step 4 — Check logs
+
+```
+kubectl logs
+```
+
+### Step 5 — Check events
+
+```
+kubectl get events
+```
+
+### Step 6 — Check networking
+
+```
+kubectl get svc
+kubectl get endpoints
+```
+
+---
+
+# Real Senior DevOps Thinking
+
+Senior engineers always ask:
+
+1️⃣ Is it **application problem**?
+2️⃣ Is it **Kubernetes resource problem**?
+3️⃣ Is it **node problem**?
+4️⃣ Is it **network problem**?
+5️⃣ Is it **cloud infrastructure problem**?
+
+---
+
+✅ If you master these **40 problems**, you will troubleshoot like a **5–7 year DevOps engineer**.
+
+---
+
+If you want, I can also give you a **very powerful guide DevOps engineers rarely share:**
+
+**“25 Most Dangerous Kubernetes Production Failures (with the exact kubectl commands senior engineers use during midnight outages)”**
+
+This will make your **Kubernetes troubleshooting level extremely strong.**
+
+[1]: https://thenewstack.io/top-10-kubernetes-deployment-errors-causes-and-fixes-and-tips/?utm_source=chatgpt.com "Top 10 Kubernetes Deployment Errors: Causes and Fixes (And Tips)"
+[2]: https://github.com/iam-veeramalla/kubernetes-troubleshooting-zero-to-hero?utm_source=chatgpt.com "iam-veeramalla/kubernetes-troubleshooting-zero-to-hero"
+[3]: https://www.honeycomb.io/blog/kubernetes-debugging?utm_source=chatgpt.com "The Guide to Kubernetes Debugging - Honeycomb"
+[4]: https://spacelift.io/blog/kubernetes-challenges?utm_source=chatgpt.com "15 Common Kubernetes Pitfalls & Challenges"
