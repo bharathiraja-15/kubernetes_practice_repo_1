@@ -1,0 +1,481 @@
+Below is a **realistic view of what senior DevOps engineers (5–8 years experience) actually do daily in production environments**.
+These are **50 real tasks**, explained **step-by-step like in real companies**.
+If you practice these, you will think like a **production DevOps engineer**, not just a beginner.
+
+---
+
+# 50 Real DevOps Tasks Senior Engineers Do Daily in Production
+
+---
+
+# 1. Check Cluster Health (Morning Routine)
+
+First thing engineers do after logging in.
+
+```bash
+kubectl get nodes
+kubectl get pods -A
+```
+
+Check:
+
+* Node status
+* CrashLoopBackOff pods
+* Pending pods
+
+---
+
+# 2. Check Monitoring Alerts
+
+Tools used:
+
+* Prometheus
+* Grafana
+* Datadog
+
+Check:
+
+* CPU usage
+* Memory usage
+* Pod restart alerts
+
+---
+
+# 3. Investigate Failed Pods
+
+```bash
+kubectl get pods -A
+kubectl describe pod <pod>
+kubectl logs <pod>
+```
+
+Understand:
+
+* Application failure
+* Config error
+* Resource issue
+
+---
+
+# 4. Check CI/CD Pipeline Status
+
+Tools:
+
+* Jenkins
+* GitHub Actions
+* GitLab CI
+
+Check:
+
+* Build failures
+* Deployment failures
+
+---
+
+# 5. Review Deployment Changes
+
+Senior engineers always review:
+
+* Git commits
+* Pull requests
+* Infrastructure changes
+
+---
+
+# 6. Deploy New Application Version
+
+Example:
+
+```bash
+kubectl apply -f deployment.yaml
+```
+
+Verify rollout.
+
+```bash
+kubectl rollout status deployment app
+```
+
+---
+
+# 7. Rollback Failed Deployment
+
+If deployment breaks production.
+
+```bash
+kubectl rollout undo deployment app
+```
+
+---
+
+# 8. Scale Application
+
+Manual scaling:
+
+```bash
+kubectl scale deployment app --replicas=5
+```
+
+---
+
+# 9. Configure Auto Scaling
+
+Use HPA.
+
+```bash
+kubectl autoscale deployment app --cpu-percent=70 --min=2 --max=10
+```
+
+---
+
+# 10. Debug Networking Issues
+
+Check services.
+
+```bash
+kubectl get svc
+kubectl get endpoints
+```
+
+---
+
+# 11. Verify DNS Resolution
+
+```bash
+kubectl exec -it pod -- nslookup service-name
+```
+
+---
+
+# 12. Manage Secrets
+
+Create secret.
+
+```bash
+kubectl create secret generic db-secret \
+--from-literal=password=123
+```
+
+---
+
+# 13. Manage ConfigMaps
+
+```bash
+kubectl create configmap app-config \
+--from-file=config.yaml
+```
+
+---
+
+# 14. Restart Application Pods
+
+After configuration change.
+
+```bash
+kubectl rollout restart deployment app
+```
+
+---
+
+# 15. Debug Container Crash
+
+```bash
+kubectl logs pod-name
+kubectl logs pod-name --previous
+```
+
+---
+
+# 16. Inspect Node Resource Usage
+
+```bash
+kubectl top nodes
+kubectl top pods
+```
+
+---
+
+# 17. Clean Unused Docker Images
+
+Sometimes disk becomes full.
+
+Engineers clean unused images.
+
+---
+
+# 18. Manage Persistent Storage
+
+Check volumes.
+
+```bash
+kubectl get pvc
+kubectl get pv
+```
+
+---
+
+# 19. Debug Pod Scheduling Problems
+
+```bash
+kubectl describe pod
+```
+
+Check:
+
+* Resource requests
+* Node selector
+* Taints
+
+---
+
+# 20. Monitor Application Logs
+
+Tools used:
+
+* ELK stack
+* Loki
+* Fluentd
+
+---
+
+# 21. Check Ingress Routing
+
+```bash
+kubectl get ingress
+kubectl describe ingress
+```
+
+---
+
+# 22. Renew TLS Certificates
+
+Engineers update expired certificates.
+
+---
+
+# 23. Update Container Images
+
+Example:
+
+```bash
+kubectl set image deployment app app=app:v2
+```
+
+---
+
+# 24. Monitor Kubernetes Events
+
+```bash
+kubectl get events
+```
+
+---
+
+# 25. Troubleshoot Network Policies
+
+```bash
+kubectl get networkpolicy
+```
+
+---
+
+# 26. Manage Helm Deployments
+
+Check release.
+
+```bash
+helm list
+helm status release-name
+```
+
+---
+
+# 27. Update Infrastructure with Terraform
+
+Example:
+
+```bash
+terraform plan
+terraform apply
+```
+
+---
+
+# 28. Review Infrastructure Changes
+
+Check Terraform plan carefully.
+
+---
+
+# 29. Maintain CI/CD Pipelines
+
+Fix pipeline failures.
+
+---
+
+# 30. Implement Security Scans
+
+Tools:
+
+* Trivy
+* SonarQube
+* Snyk
+
+---
+
+# 31. Rotate Secrets
+
+Update credentials regularly.
+
+---
+
+# 32. Monitor Cluster Autoscaling
+
+Ensure nodes scale when load increases.
+
+---
+
+# 33. Investigate Performance Issues
+
+Check slow response time.
+
+---
+
+# 34. Optimize Container Images
+
+Reduce image size.
+
+---
+
+# 35. Debug Sidecar Containers
+
+Check logs.
+
+```bash
+kubectl logs pod -c sidecar
+```
+
+---
+
+# 36. Upgrade Kubernetes Version
+
+Plan cluster upgrade carefully.
+
+---
+
+# 37. Patch Security Vulnerabilities
+
+Update container images.
+
+---
+
+# 38. Configure RBAC Permissions
+
+Check access.
+
+```bash
+kubectl auth can-i create pods
+```
+
+---
+
+# 39. Handle Production Incidents
+
+Follow incident response steps.
+
+---
+
+# 40. Communicate With Developers
+
+DevOps bridges developers and operations.
+
+---
+
+# 41. Analyze Application Metrics
+
+Check:
+
+* Latency
+* Error rate
+* Throughput
+
+---
+
+# 42. Improve Deployment Strategy
+
+Use:
+
+* Rolling updates
+* Canary deployments
+
+---
+
+# 43. Maintain Logging System
+
+Ensure logs are stored properly.
+
+---
+
+# 44. Monitor Resource Costs
+
+Optimize cloud infrastructure.
+
+---
+
+# 45. Document Production Incidents
+
+Write **post-mortem reports**.
+
+---
+
+# 46. Automate Repetitive Tasks
+
+Use scripts or pipelines.
+
+---
+
+# 47. Improve Infrastructure Security
+
+Apply security policies.
+
+---
+
+# 48. Test Disaster Recovery
+
+Practice backup restoration.
+
+---
+
+# 49. Perform Chaos Testing
+
+Test system resilience.
+
+---
+
+# 50. Plan Future Infrastructure Improvements
+
+Senior engineers constantly optimize systems.
+
+---
+
+# How Senior DevOps Engineers Think
+
+They always ask:
+
+1️⃣ Is infrastructure healthy?
+2️⃣ Is Kubernetes cluster healthy?
+3️⃣ Is networking working?
+4️⃣ Is application failing?
+5️⃣ Is monitoring showing anomalies?
+
+---
+
+✅ If you practice these **50 tasks**, you will behave like a **real production DevOps engineer**.
+
+---
+
+Since you are preparing for **DevOps roles (3–5 years experience)**, I can also give you something extremely useful:
+
+**“Complete Real DevOps Project Architecture (CI/CD + Docker + Kubernetes + Terraform + AWS) explained step-by-step like in companies.”**
+
+This is the **exact architecture many companies use in production.**
